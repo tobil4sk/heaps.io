@@ -17,10 +17,6 @@ jobs:
         with:
           submodules: true
 
-      # we are using this version in order to build vscode-textmate
-      - name: Setup Node
-        uses: actions/setup-node@v1
-
       - name: Setup Haxe
         uses: krdlab/setup-haxe@v1
         with:
@@ -36,7 +32,7 @@ jobs:
           haxelib install all --always
           haxelib git heaps https://github.com/heapsio/heaps
           haxelib list
-      
+
       - name: Script
         run: |
           haxe build-run-dox.hxml
