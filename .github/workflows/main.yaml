@@ -1,15 +1,12 @@
 name: CI
 
-on:
-  push:
-    branches:
-      - master
+on: [push, pull_request]
 
 env:
   HEAPS_VER: master
 
 jobs:
-  deploy-website:
+  build:
     runs-on: ubuntu-latest
     steps:
       - name: Setup Checkout Repository
@@ -36,7 +33,7 @@ jobs:
           haxelib install all --always
           haxelib git heaps https://github.com/heapsio/heaps
           haxelib list
-      
+
       - name: Script
         run: |
           haxe build-run-dox.hxml
@@ -44,5 +41,23 @@ jobs:
           haxe get-wiki.hxml
           haxe heaps.io.hxml
 
-      - name: Deploy
-        run: haxe deploy.hxml
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: ./output
+
+  deploy:
+    if: github.ref == 'refs/heads/master'
+    permissions:
+      contents: read
+      pages: write
+      id-token: write
+    runs-on: ubuntu-latest
+    needs: build
+    environment:
+      name: github-pages
+      url: ${{steps.deployment.outputs.page_url}}
+    steps:
+      - name: Deploy artifact
+        id: deployment
+        uses: actions/deploy-pages@v4
